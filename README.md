@@ -8,7 +8,7 @@ El objetivo del proyecto es hacer un mapa para la web de https://covid-vacuna.ap
 - [x]  Geometrías de las comunidades autónomas simplificadas.
 - [x] Unificar propiedades con los datos de la web.
 - [x] Combinar la geometría de las CCAA con los datos del covid.
-- [ ]Pintar las comunidades autónomas en el mapa.
+- [ ] Pintar las comunidades autónomas en el mapa.
 - [ ] ...
 
 
