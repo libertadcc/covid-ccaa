@@ -17,4 +17,5 @@ function addFeatures() {
 };
 
 addFeatures();
-console.log('covidGeometry', covidGeometry)
+console.log('covidGeometry', covidGeometry);
+
