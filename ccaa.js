@@ -1,4 +1,4 @@
-{
+export const data = {
   "type" : "FeatureCollection", 
   "features" : [
     {
@@ -19761,7 +19761,7 @@
         ]
       }, 
       "properties" : {
-        "Nombre" : "Castilla y León", 
+        "Nombre" : "Castilla y Leon", 
         "cod_CCAA" : "07"
       }
     }, 
