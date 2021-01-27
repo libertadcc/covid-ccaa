@@ -1,26 +1,133 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Prueba CCAA</title>
-    <style>
-      html, body, #viewDiv {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        width: 100%;
-      }
-    </style>
-  
-    <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/css/main.css">
-    <script src="https://js.arcgis.com/4.18/"></script>
-  
-    <script>
-     
-    </script>
+<head>
+	<title>Prueba CCAA</title>
+	<style>
+		html, body, #viewDiv {
+			padding: 0;
+			margin: 0;
+			height: 100%;
+			width: 100%;
+		}
+	</style>
+	
+	<link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/css/main.css">
+	<script src="https://js.arcgis.com/4.18/"></script>
+	
+	<script>
+		
+		map = new Map({
+			basemap: "dark-gray-vector"
+		});
+		
+		var view = new MapView({
+			container: "viewDiv",
+			map: map,
+			center: [-3.7197, 40.41304],
+			zoom: 5,
+			spatialReference: {
+				wkid: 102100
+			},
+		});
+		
+		let vaccineRenderer =  {
+			type: "simple", 
+			color: "yellow",
+			outline: {  
+				color: [255, 255 , 0, 1],
+				width: "0.5px"
+			}
+		};
+		
+		view.when(function() {
+			getData()
+			.then(addGeometryCovidData)
+			.then(createLayer)
+			.then(addToView)
+			.catch(function (e) {
+				console.error("Creating FeatureLayer failed", e);
+			});
+		});
+		
+		function getData() {
+			var url = 'https://covid-vacuna.app/data/latest.json';
+			return esriRequest(url, { //fetch
+				responseType: "json"
+			});
+			
+			// fetch('https://covid-vacuna.app/data/latest.json')
+			//   .then(response => response.json())
+		}
+		
+		
+		function addGeometryCovidData(response) {
+			let covidGeometry = [];
+			dataCovid = response.data;
+			console.log(dataCovid);
+			console.log('dataCCAA', dataCCAA)
+			dataCovid.map(comunidad => {
+				dataCCAA.map(com => {
+					if (comunidad.ccaa === com.attributes.Nombre) {
+						return comunidad = new Graphic({
+							attributes: {
+								ObjectId: com.attributes.cod_CCAA,
+								ccaa: comunidad.ccaa,
+								dosisAdministradas: comunidad.dosisAdministradas,
+								dosisEntregadas: comunidad.dosisEntregadas,
+								dosisEntregadasModerna: comunidad.dosisEntregadasModerna,
+								dosisEntregadasPfizer: comunidad.dosisEntregadasPfizer,
+								dosisPautaCompletada: comunidad.dosisPautaCompletada,
+								porcentajeEntregadas: comunidad.porcentajeEntregadas,
+								porcentajePoblacionAdministradas: comunidad.porcentajePoblacionAdministradas,
+								porcentajePoblacionCompletas: comunidad.porcentajePoblacionCompletas,
+							}, 
+							// geometry: com.geometry // error sobre el tipo
+							geometry: {
+								type: "polygon",
+								rings: com.geometry.rings
+							}
+						});
+					}
+				});
+				covidGeometry.push(comunidad);
+			});  
+			
+			return covidGeometry
+		}
+		
+		// let layer;
+		function createLayer(graphics) {
+			console.log('createLayer', graphics);
+			return new FeatureLayer({
+				source: graphics,
+				fields: fields, // This is required when creating a layer from Graphics
+				objectIdField: "ObjectID", // This must be defined when creating a layer from Graphics
+				renderer: vaccineRenderer, // set the visualization on the layer
+				popupTemplate: {                     // autocasts as new PopupTemplate()
+					title: "HOLA"
+				},
+			});    
+			
+		}
+		
+		function addToView(layer) { //https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=layers-featurelayer-collection
+			console.log('addToView', layer)
+			//view.map.add(layer);
+			map.layers.add(layer); // https://developers.arcgis.com/javascript/latest/guide/layers-and-data/
+			// map.add(layer)
+		}
+		
+	});
+	
+	
+	
+	
+	
+</script>
 
-    <script type="module" src="main.js"></script>
-  </head>
-  <body>
-    <div id="viewDiv"></div>
-  </body>
+<!-- <script type="module" src="main.js"></script> -->
+</head>
+<body>
+	<div id="viewDiv"></div>
+</body>
 </html>

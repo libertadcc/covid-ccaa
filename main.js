@@ -1,16 +1,7 @@
-import * as ccaa from './ccaa.js';
+// import * as ccaa from './ccaageo.js';
+
+import * as ccaa from './ccaa10210.js'; //https://services1.arcgis.com/nCKYwcSONQTkPA4K/ArcGIS/rest/services/CCAA_wgs1984_wm/FeatureServer/0
 import * as covid from './latest.js';
-const dataCCAA = ccaa.data.features;
-let dataCovid = covid.data;
-
-
-// fetch('https://covid-vacuna.app/data/latest.json')
-//   .then(response => response.json())
-//   .then(data => dataCovid = data)
-//   .then(addFeatures())
-//   .catch(error => console.log('error', error));
-
-
 
 require([
   "esri/Map",
@@ -20,6 +11,11 @@ require([
   "esri/Graphic",
   "esri/request"
 ], function(Map, MapView, FeatureLayer, Polygon, Graphic, esriRequest) {
+
+  const dataCCAA = ccaa.data.features; 
+  let dataCovid = covid.data;
+    
+  
   var fields = [
     {
       name: "ObjectID",
@@ -69,7 +65,7 @@ require([
   ];
   
   
-  var map = new Map({
+  map = new Map({
     basemap: "dark-gray-vector"
   });
 
@@ -77,12 +73,15 @@ require([
     container: "viewDiv",
     map: map,
     center: [-3.7197, 40.41304],
-    zoom: 5
+    zoom: 5,
+    spatialReference: {
+      wkid: 102100
+    },
   });
 
   let vaccineRenderer =  {
     type: "simple",  // error with simple-fill
-    color: "white",
+    color: "yellow",
     outline: {  // autocasts as new SimpleLineSymbol()
       color: [255, 255 , 0, 1],
       width: "0.5px"
@@ -113,13 +112,14 @@ require([
   function addGeometryCovidData(response) {
     let covidGeometry = [];
     dataCovid = response.data;
-    console.log(dataCovid)
+    console.log(dataCovid);
+    console.log('dataCCAA', dataCCAA)
     dataCovid.map(comunidad => {
         dataCCAA.map(com => {
-          if (comunidad.ccaa === com.properties.Nombre) {
+          if (comunidad.ccaa === com.attributes.Nombre) {
             return comunidad = new Graphic({
               attributes: {
-                ObjectId: com.properties.cod_CCAA,
+                ObjectId: com.attributes.cod_CCAA,
                 ccaa: comunidad.ccaa,
                 dosisAdministradas: comunidad.dosisAdministradas,
                 dosisEntregadas: comunidad.dosisEntregadas,
@@ -133,7 +133,7 @@ require([
               // geometry: com.geometry // error sobre el tipo
               geometry: {
                 type: "polygon",
-                rings: com.geometry.coordinates
+                rings: com.geometry.rings
               }
             });
           }
@@ -152,13 +152,17 @@ require([
       fields: fields, // This is required when creating a layer from Graphics
       objectIdField: "ObjectID", // This must be defined when creating a layer from Graphics
       renderer: vaccineRenderer, // set the visualization on the layer
-      // popupTemplate: pTemplate
+      popupTemplate: {                     // autocasts as new PopupTemplate()
+        title: "HOLA"
+      },
     });    
+
   }
 
-  function addToView(layer) {
-    console.log('addToView')
+  function addToView(layer) { //https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=layers-featurelayer-collection
+    console.log('addToView', layer)
     view.map.add(layer);
+    map.layers.add(layer); // https://developers.arcgis.com/javascript/latest/guide/layers-and-data/
   }
 
 });
