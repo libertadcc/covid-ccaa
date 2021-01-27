@@ -1,4 +1,4 @@
-export const data = {
+var dataCCAA = {
 	"objectIdFieldName": "OBJECTID",
 	"uniqueIdField": {
 		"name": "OBJECTID",

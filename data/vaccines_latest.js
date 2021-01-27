@@ -1,4 +1,4 @@
-export const data = [{
+[{
 	"ccaa": "Andalucía",
 	"dosisAdministradas": 194101,
 	"dosisEntregadas": 251420,
