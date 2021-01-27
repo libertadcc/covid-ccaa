@@ -59,163 +59,141 @@ require([
         }
     ];
 
-////////////////
-/*****************************************************************
-         * Define symbols for each class break.
-         *****************************************************************/
+    const less10 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.1],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+    
+    const less20 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.2],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+  
+    const less30 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.3],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+  
+    const less40 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.4],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+  
+    const less50 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.5],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+  
+    const less60 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.6],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+  
+    const less70 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.7],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
 
-        const less10 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.1],
-            style: "solid",
+    const more70 = {
+        type: "simple-fill", 
+        color: [0, 145, 255, 0.9],
+        style: "solid",
+        outline: {
+            width: 0.6,
+            color: [27, 116, 228, 1]
+        }
+    };
+  
+    const renderer = {
+        type: "class-breaks",
+        field: "porcentajePoblacionCompletas",
+        defaultSymbol: {
+            type: "simple-fill", 
+            color: "black",
+            style: "backward-diagonal",
             outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-          const less20 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.2],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-          const less30 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.3],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-          const less40 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.4],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-          const less50 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.5],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-          const less60 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.6],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-          const less70 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.7],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-
-          const more70 = {
-            type: "simple-fill", // autocasts as new SimpleFillSymbol()
-            color: [0, 145, 255, 0.9],
-            style: "solid",
-            outline: {
-                width: 0.6,
-                color: [27, 116, 228, 1]
-            }
-          };
-  
-  
-          /*****************************************************************
-           * Set each unique value directly in the renderer's constructor.
-           * At least one field must be used (in this case the "COL_DEG" field).
-           * The label property of each unique value will be used to indicate
-           * the field value and symbol in the legend.
-           *****************************************************************/
-  
-          const renderer = {
-            type: "class-breaks", // autocasts as new ClassBreaksRenderer()
-            field: "porcentajePoblacionCompletas",
-            defaultSymbol: {
-              type: "simple-fill", // autocasts as new SimpleFillSymbol()
-              color: "black",
-              style: "backward-diagonal",
-              outline: {
                 width: 0.5,
                 color: [50, 50, 50, 0.6]
-              }
-            },
-            defaultLabel: "no data",
-            classBreakInfos: [
-              {
+            }
+        },
+        defaultLabel: "no data",
+        classBreakInfos: [
+            {
                 minValue: 0,
                 maxValue: 0.0999,
                 symbol: less10
-              },
-              {
+            },{
                 minValue: 0.1,
                 maxValue: 0.1999,
                 symbol: less20
-              },
-              {
+            },{
                 minValue: 0.2,
                 maxValue: 0.2999,
                 symbol: less30
-              },
-              {
+            },{
                 minValue: 0.3,
                 maxValue: 0.3999,
                 symbol: less40
-              },
-              {
+            },{
                 minValue: 0.4,
                 maxValue: 0.4999,
                 symbol: less50
-              },
-              {
+            },{
                 minValue: 0.5,
                 maxValue: 0.5999,
                 symbol: less60
-              },
-              {
+            },{
                 minValue: 0.6,
                 maxValue: 0.6999,
                 symbol: less70
-              },
-              {
-                minValue: 0.7,
+            },{
+              minValue: 0.7,
                 maxValue: 1.0,
                 symbol: more70
-              }
-            ]
-          };
-  
+            }
+        ]
+    };
 
-
-    map = new Map({
+    const map = new Map({
         basemap: "gray-vector"
     });
 
-    view = new MapView({
+    const view = new MapView({
         container: "viewDiv",
         map: map,
         center: [-3.947902885389234, 39.465869757459394],
@@ -252,7 +230,6 @@ require([
             view.on("pointer-move", function(event) {  
                 return highlightFeature(layer, view.toMap(event));
             });
-            
         });
     });
 
@@ -282,8 +259,8 @@ require([
     canaryView.when(disableZooming);
 
     function disableZooming(view) {
-
         view.popup.actions = [];
+        
         function stopEvtPropagation(event) {
           event.stopPropagation();
         }
