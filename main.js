@@ -3,7 +3,7 @@ require([
     "esri/views/MapView",
     "esri/layers/FeatureLayer",
     "esri/Graphic",
-    "esri/layers/GraphicsLayer",
+    "esri/layers/GraphicsLayer"
 ], function(Map, MapView, FeatureLayer, Graphic, GraphicsLayer) {
 
     var fields = [
@@ -20,37 +20,42 @@ require([
         {
             name: "dosisAdministradas",
             alias: "dosisAdministradas",
-            type: "double"
+            type: "string"
         },
         {
             name: "dosisEntregadas",
             alias: "dosisEntregadas",
-            type: "double"
+            type: "string"
         },
         {
             name: "dosisEntregadasModerna",
             alias: "dosisEntregadasModerna",
-            type: "double"
+            type: "string"
         },
         {
             name: "dosisEntregadasPfizer",
             alias: "dosisEntregadasPfizer",
-            type: "double"
+            type: "string"
+        },
+        {
+            name: "dosisPautaCompletada",
+            alias: "dosisPautaCompletada",
+            type: "string"
         },
         {
             name: "porcentajeEntregadas",
             alias: "porcentajeEntregadas",
-            type: "double"
+            type: "string"
         },
         {
             name: "porcentajePoblacionAdministradas",
             alias: "porcentajePoblacionAdministradas",
-            type: "double"
+            type: "string"
         },
         {
             name: "porcentajePoblacionCompletas",
             alias: "porcentajePoblacionCompletas",
-            type: "double"
+            type: "string"
         }
     ];
 
@@ -61,12 +66,16 @@ require([
     view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [-3.7197, 40.41304],
+        center: [-3.582370898437486, 39.75319648005721],
         zoom: 5,
         constraints: {
           rotationEnabled: false
-        }
-    });
+        },
+        ui: {
+            components: ['attribution']
+        },
+    });    
+
     let layer ;
     view.when(function() {
         fetch('./data/vaccines_latest.js')
@@ -79,6 +88,8 @@ require([
                 objectIdField: "ObjectID"
             });
             map.add(layer);
+            document.querySelector('.esri-attribution__powered-by a').innerHTML = `<a href="https://developers.arcgis.com/" target="_blank">ArcGIS</a>`
+
             return layer;
         })
         .then((layer) => {
@@ -147,16 +158,15 @@ require([
     map.add(graphicsLayer);
 
 
-    function highlightFeature(lview, mappoint) {
+    function highlightFeature(layerView, mappoint) {
         const query = {
             geometry: mappoint,
             returnGeometry: true,
             outFields: ["*"]
         };
 
-        lview.queryFeatures(query).then((response) => {
+        layerView.queryFeatures(query).then((response) => {
             graphicsLayer.graphics.removeAll();
-           
 
             if(response.features.length > 0) {
                 const symbol = {
@@ -172,10 +182,10 @@ require([
                     "content": `<b>Dosis entregadas:</b> {dosisEntregadas}<br>
                                 <b>Dosis entregadas Pfizer:</b> {dosisEntregadasPfizer}<br>
                                 <b>Dosis entregadas Moderna:</b> {dosisEntregadasModerna}<br>
-                                <b>Dosis administratadas:</b> {dosisAdministradas}<br>
-                                <b>Porcentaje entregadas:</b> {porcentajeEntregadas}<br>
+                                <b>Dosis administradas:</b> {dosisAdministradas}<br>
+                                <b>Porcentaje entregadas:</b> {porcentajeEntregadas} %<br>
                                 <b>Dosis pauta completada:</b> {dosisPautaCompletada}<br>
-                                <b>Porcentaje población totalmente vacunada:</b> {porcentajePoblacionCompletas}<br>`
+                                <b>Población totalmente vacunada:</b> {porcentajePoblacionCompletas} %<br>`
                 };
                 if (feature.attributes.ccaa === "Canarias") {      
                     view.popup.close();  
@@ -192,6 +202,8 @@ require([
                     });
                     
                 }
+            } else {
+                view.popup.close();  
             }
         });        
     };
@@ -215,20 +227,19 @@ require([
             }
 
             ccaaGeometry = dataCCAA.features.find(finder, {ccaa: dosis_ccaa.ccaa});
-
             if(ccaaGeometry && ccaaGeometry[attributes['properties']].cod_CCAA){
                 return new Graphic({
                     attributes: {
                         ObjectId: ccaaGeometry[attributes['properties']].cod_CCAA,
                         ccaa: dosis_ccaa.ccaa,
-                        dosisAdministradas: dosis_ccaa.dosisAdministradas,
-                        dosisEntregadas: dosis_ccaa.dosisEntregadas,
-                        dosisEntregadasModerna: dosis_ccaa.dosisEntregadasModerna,
-                        dosisEntregadasPfizer: dosis_ccaa.dosisEntregadasPfizer,
-                        dosisPautaCompletada: dosis_ccaa.dosisPautaCompletada,
-                        porcentajeEntregadas: dosis_ccaa.porcentajeEntregadas,
-                        porcentajePoblacionAdministradas: dosis_ccaa.porcentajePoblacionAdministradas,
-                        porcentajePoblacionCompletas: dosis_ccaa.porcentajePoblacionCompletas,
+                        dosisAdministradas: dosis_ccaa.dosisAdministradas.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisEntregadas: dosis_ccaa.dosisEntregadas.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisEntregadasModerna: dosis_ccaa.dosisEntregadasModerna.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisEntregadasPfizer: dosis_ccaa.dosisEntregadasPfizer.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisPautaCompletada: dosis_ccaa.dosisPautaCompletada.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        porcentajeEntregadas: dosis_ccaa.porcentajeEntregadas.toFixed(4),
+                        porcentajePoblacionAdministradas: dosis_ccaa.porcentajePoblacionAdministradas.toFixed(4),
+                        porcentajePoblacionCompletas: dosis_ccaa.porcentajePoblacionCompletas.toFixed(4),
                     },
                     geometry: {
                         type: 'polygon',
