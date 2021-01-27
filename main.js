@@ -60,7 +60,7 @@ require([
     ];
 
     map = new Map({
-        basemap: "dark-gray-vector"
+        basemap: "gray-vector"
     });
 
     view = new MapView({
@@ -78,7 +78,7 @@ require([
 
     let layer ;
     view.when(function() {
-        fetch('./data/vaccines_latest.js')
+        fetch('https://covid-vacuna.app/data/latest.json')
         .then(response => response.json())
         .then(data => {
             let geodata = geolocateCovidData(data).filter(data => data != undefined);
