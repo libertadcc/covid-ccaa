@@ -1,168 +1,251 @@
-import * as ccaa from './ccaa.js';
-import * as covid from './latest.js';
-const dataCCAA = ccaa.data.features;
-let dataCovid = covid.data;
-
-
-// fetch('https://covid-vacuna.app/data/latest.json')
-//   .then(response => response.json())
-//   .then(data => dataCovid = data)
-//   .then(addFeatures())
-//   .catch(error => console.log('error', error));
-
-
-
 require([
-  "esri/Map",
-  "esri/views/MapView",
-  "esri/layers/FeatureLayer",
-  "esri/geometry/Polygon",
-  "esri/Graphic",
-  "esri/request"
-], function(Map, MapView, FeatureLayer, Polygon, Graphic, esriRequest) {
-  var fields = [
-    {
-      name: "ObjectID",
-      alias: "ObjectID",
-      type: "oid"
-    },
-    {
-      name: "ccaa",
-      alias: "ccaa",
-      type: "string"
-    },
-    { 
-      name: "dosisAdministradas",
-      alias: "dosisAdministradas",
-      type: "double"
-    },
-    { 
-      name: "dosisEntregadas",
-      alias: "dosisEntregadas",
-      type: "double"
-    },
-    { 
-      name: "dosisEntregadasModerna",
-      alias: "dosisEntregadasModerna",
-      type: "double"
-    },
-    { 
-      name: "dosisEntregadasPfizer",
-      alias: "dosisEntregadasPfizer",
-      type: "double"
-    },
-    { 
-      name: "porcentajeEntregadas",
-      alias: "porcentajeEntregadas",
-      type: "double"
-    },
-    { 
-      name: "porcentajePoblacionAdministradas",
-      alias: "porcentajePoblacionAdministradas",
-      type: "double"
-    },
-    { 
-      name: "porcentajePoblacionCompletas",
-      alias: "porcentajePoblacionCompletas",
-      type: "double"
-    }
-  ];
-  
-  
-  var map = new Map({
-    basemap: "dark-gray-vector"
-  });
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/Graphic",
+    "esri/layers/GraphicsLayer"
+], function(Map, MapView, FeatureLayer, Graphic, GraphicsLayer) {
 
-  var view = new MapView({
-    container: "viewDiv",
-    map: map,
-    center: [-3.7197, 40.41304],
-    zoom: 5
-  });
+    var fields = [
+        {
+            name: "ObjectID",
+            alias: "ObjectID",
+            type: "oid"
+        },
+        {
+            name: "ccaa",
+            alias: "ccaa",
+            type: "string"
+        },
+        {
+            name: "dosisAdministradas",
+            alias: "dosisAdministradas",
+            type: "string"
+        },
+        {
+            name: "dosisEntregadas",
+            alias: "dosisEntregadas",
+            type: "string"
+        },
+        {
+            name: "dosisEntregadasModerna",
+            alias: "dosisEntregadasModerna",
+            type: "string"
+        },
+        {
+            name: "dosisEntregadasPfizer",
+            alias: "dosisEntregadasPfizer",
+            type: "string"
+        },
+        {
+            name: "dosisPautaCompletada",
+            alias: "dosisPautaCompletada",
+            type: "string"
+        },
+        {
+            name: "porcentajeEntregadas",
+            alias: "porcentajeEntregadas",
+            type: "string"
+        },
+        {
+            name: "porcentajePoblacionAdministradas",
+            alias: "porcentajePoblacionAdministradas",
+            type: "string"
+        },
+        {
+            name: "porcentajePoblacionCompletas",
+            alias: "porcentajePoblacionCompletas",
+            type: "string"
+        }
+    ];
 
-  let vaccineRenderer =  {
-    type: "simple",  // error with simple-fill
-    color: "white",
-    outline: {  // autocasts as new SimpleLineSymbol()
-      color: [255, 255 , 0, 1],
-      width: "0.5px"
-    }
-  };
-
-  view.when(function() {
-    getData()
-      .then(addGeometryCovidData)
-      .then(createLayer)
-      .then(addToView)
-      .catch(function (e) {
-        console.error("Creating FeatureLayer failed", e);
-      });
-  });
-  
-  function getData() {
-    var url = 'https://covid-vacuna.app/data/latest.json';
-    return esriRequest(url, { //fetch
-      responseType: "json"
+    map = new Map({
+        basemap: "gray-vector"
     });
 
-    // fetch('https://covid-vacuna.app/data/latest.json')
-    //   .then(response => response.json())
-  }
+    view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-3.947902885389234, 39.465869757459394],
+        zoom: 5,
+        constraints: {
+          rotationEnabled: false
+        },
+        ui: {
+            components: ['attribution']
+        },
+    });
 
-
-  function addGeometryCovidData(response) {
-    let covidGeometry = [];
-    dataCovid = response.data;
-    console.log(dataCovid)
-    dataCovid.map(comunidad => {
-        dataCCAA.map(com => {
-          if (comunidad.ccaa === com.properties.Nombre) {
-            return comunidad = new Graphic({
-              attributes: {
-                ObjectId: com.properties.cod_CCAA,
-                ccaa: comunidad.ccaa,
-                dosisAdministradas: comunidad.dosisAdministradas,
-                dosisEntregadas: comunidad.dosisEntregadas,
-                dosisEntregadasModerna: comunidad.dosisEntregadasModerna,
-                dosisEntregadasPfizer: comunidad.dosisEntregadasPfizer,
-                dosisPautaCompletada: comunidad.dosisPautaCompletada,
-                porcentajeEntregadas: comunidad.porcentajeEntregadas,
-                porcentajePoblacionAdministradas: comunidad.porcentajePoblacionAdministradas,
-                porcentajePoblacionCompletas: comunidad.porcentajePoblacionCompletas,
-              }, 
-              // geometry: com.geometry // error sobre el tipo
-              geometry: {
-                type: "polygon",
-                rings: com.geometry.coordinates
-              }
+    let layer ;
+    view.when(function() {
+        fetch('https://covid-vacuna.app/data/latest.json')
+        .then(response => response.json())
+        .then(data => {
+            let geodata = geolocateCovidData(data).filter(data => data != undefined);
+            layer = new FeatureLayer({
+                source: geodata,
+                fields: fields,
+                objectIdField: "ObjectID",
+                //renderer: renderer
             });
+            map.add(layer);
+            document.querySelector('.esri-attribution__powered-by a').innerHTML = `<a href="https://developers.arcgis.com/" target="_blank">ArcGIS</a>`
+
+            return layer;
+        })
+        .then((layer) => {
+            canaryView.on("pointer-move", function(event) {  
+                return highlightFeature(layer, canaryView.toMap(event));
+            });
+            view.on("pointer-move", function(event) {  
+                return highlightFeature(layer, view.toMap(event));
+            });
+            
+        });
+    });
+
+    var canaryView = new MapView({
+        container: "canaryDiv",
+        map: map,
+        extent: {
+            xmax: -1477772.795519894,
+            xmin: -2064809.1727500185,
+            ymax: 3446020.306026007,
+            ymin: 3149750.3843926787,
+            spatialReference: {
+                wkid: 102100
+            }
+        },
+        ui: {
+          components: []
+        },
+        constraints: {
+          rotationEnabled: false
+        }
+    });
+    view.ui.add("canaryDiv", "bottom-left");
+
+
+    view.when(disableZooming);
+    canaryView.when(disableZooming);
+
+    function disableZooming(view) {
+
+        view.popup.actions = [];
+        function stopEvtPropagation(event) {
+          event.stopPropagation();
+        }
+
+        view.on("mouse-wheel", stopEvtPropagation);
+        view.on("double-click", stopEvtPropagation);
+        view.on("double-click", ["Control"], stopEvtPropagation);
+        view.on("drag", stopEvtPropagation);
+        view.on("drag", ["Shift"], stopEvtPropagation);
+        view.on("drag", ["Shift", "Control"], stopEvtPropagation);
+        view.on("key-down", function(event) {
+          const prohibitedKeys = ["+", "-", "Shift", "_", "=", "ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
+          const keyPressed = event.key;
+          if (prohibitedKeys.indexOf(keyPressed) !== -1) {
+            event.stopPropagation();
           }
         });
-        covidGeometry.push(comunidad);
-      });  
-     
-    return covidGeometry
-  }
+        return view;
+    };
 
-  // let layer;
-  function createLayer(graphics) {
-    console.log('createLayer', graphics);
-    return new FeatureLayer({
-      source: graphics,
-      fields: fields, // This is required when creating a layer from Graphics
-      objectIdField: "ObjectID", // This must be defined when creating a layer from Graphics
-      renderer: vaccineRenderer, // set the visualization on the layer
-      // popupTemplate: pTemplate
-    });    
-  }
+    const graphicsLayer = new GraphicsLayer({
+        title: "layer"
+    });
 
-  function addToView(layer) {
-    console.log('addToView')
-    view.map.add(layer);
-  }
+    map.add(graphicsLayer);
 
+    function highlightFeature(layerView, mappoint) {
+        const query = {
+            geometry: mappoint,
+            returnGeometry: true,
+            outFields: ["*"]
+        };
+    
+        layerView.queryFeatures(query).then((response) => {
+            graphicsLayer.graphics.removeAll();
+
+            if(response.features.length > 0) {
+                const symbol = {
+                  type: "simple-fill",
+                  color: null,
+                  outline: "rgba(0, 255, 255, 1)"
+                };
+                var feature = response.features[0];
+                feature.symbol = symbol;
+                graphicsLayer.graphics.add(feature);
+                feature.popupTemplate = {
+                    "title": "{ccaa}",
+                    "content": `<b>Dosis entregadas:</b> {dosisEntregadas}<br>
+                                <b>Dosis entregadas Pfizer:</b> {dosisEntregadasPfizer}<br>
+                                <b>Dosis entregadas Moderna:</b> {dosisEntregadasModerna}<br>
+                                <b>Dosis administradas:</b> {dosisAdministradas}<br>
+                                <b>Porcentaje entregadas:</b> {porcentajeEntregadas} %<br>
+                                <b>Dosis pauta completada:</b> {dosisPautaCompletada}<br>
+                                <b>Población totalmente vacunada:</b> {porcentajePoblacionCompletas} %<br>`
+                };
+                if (feature.attributes.ccaa === "Canarias") {      
+                    view.popup.close();  
+                    canaryView.popup.open({
+                        features:response.features,
+                        location:mappoint
+                    });
+                } else {
+                    canaryView.popup.close();
+                    view.popup.open({
+                        features:response.features,
+                        location:mappoint
+                    });
+                }
+            } else {
+                view.popup.close();  
+            }
+        });    
+    };
+
+    function geolocateCovidData(data) {
+
+        const esriJson = {
+            properties: 'attributes',
+            coordinates: 'rings'
+        };
+        const geoJSON = {
+            properties: 'properties',
+            coordinates: 'coordinates'
+        };
+
+        let attributes = esriJson;
+        let covidGeometry = data.map(dosis_ccaa => {
+
+            let finder = function(ccaa) {
+               return ccaa[attributes['properties']].Nombre == this.ccaa
+            }
+
+            ccaaGeometry = dataCCAA.features.find(finder, {ccaa: dosis_ccaa.ccaa});
+            if(ccaaGeometry && ccaaGeometry[attributes['properties']].cod_CCAA){
+                return new Graphic({
+                    attributes: {
+                        ObjectId: ccaaGeometry[attributes['properties']].cod_CCAA,
+                        ccaa: dosis_ccaa.ccaa,
+                        dosisAdministradas: dosis_ccaa.dosisAdministradas.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisEntregadas: dosis_ccaa.dosisEntregadas.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisEntregadasModerna: dosis_ccaa.dosisEntregadasModerna.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisEntregadasPfizer: dosis_ccaa.dosisEntregadasPfizer.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        dosisPautaCompletada: dosis_ccaa.dosisPautaCompletada.toString().replace(/\d(?=(?:\d{3})+$)/g, '$&.'),
+                        porcentajeEntregadas: dosis_ccaa.porcentajeEntregadas.toFixed(4),
+                        porcentajePoblacionAdministradas: dosis_ccaa.porcentajePoblacionAdministradas.toFixed(4),
+                        porcentajePoblacionCompletas: dosis_ccaa.porcentajePoblacionCompletas.toFixed(4),
+                    },
+                    geometry: {
+                        type: 'polygon',
+                        rings: ccaaGeometry.geometry[attributes['coordinates']]
+                    }
+                });
+            }
+        });
+        return covidGeometry
+    }
 });
-
-
-
-
