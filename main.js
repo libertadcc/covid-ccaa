@@ -58,7 +58,7 @@ require([
         basemap: "dark-gray-vector"
     });
 
-    var view = new MapView({
+    view = new MapView({
         container: "viewDiv",
         map: map,
         center: [-3.7197, 40.41304],
@@ -82,6 +82,25 @@ require([
             map.add(layer);
         });
     });
+
+    
+    var canaryDiv = new MapView({
+        container: "canaryDiv",
+        map: map,
+        extent: {
+            xmax: -1477772.795519894,
+            xmin: -2064809.1727500185,
+            ymax: 3446020.306026007,
+            ymin: 3149750.3843926787,
+            spatialReference: {
+                wkid: 102100
+            }
+        },
+        ui: {
+          components: []
+        }
+    });
+    view.ui.add("canaryDiv", "bottom-left");
 
     function geolocateCovidData(data) {
 
