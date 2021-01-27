@@ -66,7 +66,7 @@ require([
     view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [-3.582370898437486, 39.75319648005721],
+        center: [-3.947902885389234, 39.465869757459394],
         zoom: 5,
         constraints: {
           rotationEnabled: false
@@ -74,7 +74,7 @@ require([
         ui: {
             components: ['attribution']
         },
-    });    
+    });
 
     let layer ;
     view.when(function() {
@@ -85,7 +85,8 @@ require([
             layer = new FeatureLayer({
                 source: geodata,
                 fields: fields,
-                objectIdField: "ObjectID"
+                objectIdField: "ObjectID",
+                //renderer: renderer
             });
             map.add(layer);
             document.querySelector('.esri-attribution__powered-by a').innerHTML = `<a href="https://developers.arcgis.com/" target="_blank">ArcGIS</a>`
@@ -157,22 +158,21 @@ require([
 
     map.add(graphicsLayer);
 
-
     function highlightFeature(layerView, mappoint) {
         const query = {
             geometry: mappoint,
             returnGeometry: true,
             outFields: ["*"]
         };
-
+    
         layerView.queryFeatures(query).then((response) => {
             graphicsLayer.graphics.removeAll();
 
             if(response.features.length > 0) {
                 const symbol = {
                   type: "simple-fill",
-                  color: "rgba(0, 255, 255, 1)",
-                  outline: null
+                  color: null,
+                  outline: "rgba(0, 255, 255, 1)"
                 };
                 var feature = response.features[0];
                 feature.symbol = symbol;
@@ -193,19 +193,17 @@ require([
                         features:response.features,
                         location:mappoint
                     });
-                    
                 } else {
                     canaryView.popup.close();
                     view.popup.open({
                         features:response.features,
                         location:mappoint
                     });
-                    
                 }
             } else {
                 view.popup.close();  
             }
-        });        
+        });    
     };
 
     function geolocateCovidData(data) {
